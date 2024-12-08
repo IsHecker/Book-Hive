@@ -1,0 +1,142 @@
+@using BookHive.Services
+@model Book
+@inject CommentRepository CommentRepository
+@{
+    var userId = Context.Session.GetUserId();
+}
+<div class="row">
+    <div class="col-md-6">
+        <img src="@Model.PosterUrl" alt="" class="img-fluid mt-3" style=" min-height: 300px; max-height: 300px; object-fit: contain; ">
+    </div>
+    <div class="col-md-6">
+        <h2>@Model.Title</h2>
+        <p><strong>Author:</strong> @Model.Author</p>
+        <p><strong>Genre:</strong> @Model.Genre</p>
+        <p><strong>Description:</strong> @Model.Description</p>
+        @if (userId != null && Model.BorrowedById == userId)
+        {
+            <button type="button" id="add-remove-btn" asp-controller="Member" asp-action="RemoveBookFromCollection"
+                    asp-route-bookId="@Model.Id"
+                    class="btn btn-danger" rel="nofollow">Remove from Collection
+            </button>
+        }
+        else
+        {
+            @if (Model.BorrowedById != null)
+            {
+                <button id="add-remove-btn" class="btn disabled-link">Unavailable</button>
+            }
+            else
+            {
+                <button type="button" id="add-remove-btn" asp-controller="Member" asp-action="AddBookToCollection"
+                        asp-route-bookId="@Model.Id"
+                        class="btn btn-success" rel="nofollow">Add to Collection
+                </button>
+            }
+        }
+    </div>
+</div>
+
+<div id="comments-section">
+    @await Html.PartialAsync("~/Views/Comment/Comments.cshtml", CommentRepository.GetBookComments(Model.Id))
+</div>
+
+<!-- Add Comment Form -->
+<div class="add-comment mt-4">
+    <h5>Leave a Comment</h5>
+    <form method="post" asp-controller="Comment" asp-action="PostReview" id="commentForm">
+        <input type="hidden" name="bookId" value="@Model.Id"/>
+        <div class="mb-3">
+            <label for="comment" class="form-label">Your Comment</label>
+            <textarea id="comment" name="comment" class="form-control" rows="3" required></textarea>
+        </div>
+        <button type="button" id="submitCommentBtn" class="btn disabled-link">Submit</button>
+    </form>
+</div>
+
+
+<script>
+    const button = document.getElementById('add-remove-btn');
+
+    // Handle Add/Remove Button
+    $('#add-remove-btn').click(function (event) {
+        event.preventDefault(); // Prevent default link behavior
+
+        // Example: Extracting the parameter (e.g., the "id" after "/book/")
+        const pathParts = window.location.pathname.split('/');
+
+        //const bookId = $(this).attr('href').split('?')[1];
+        const bookId = 'bookId=' + pathParts[pathParts.length - 1];
+        console.log(bookId);
+
+        let actionUrl = `/Member/AddBookToCollection`;
+
+        if (button.classList.contains('btn-danger')) {
+            actionUrl = `/Member/RemoveBookFromCollection`;
+        }
+
+        actionUrl += `?${bookId}`;
+
+        console.log(actionUrl);
+
+        $.ajax({
+            url: actionUrl,
+            method: 'GET',
+            success: function (data) {
+                // Update both partial views
+                if (button.classList.contains('btn-success')) {
+                    button.classList.replace("btn-success", "btn-danger");
+                    button.textContent = 'Remove from Collection';
+                    return;
+                }
+                button.classList.replace("btn-danger", "btn-success");
+                button.textContent = 'Add to Collection';
+            },
+            error: function () {
+                alert("Error updating partial views.");
+            }
+        });
+    });
+
+    // Clear error message when typing in any input within the form
+    const submitCommentBtn = document.getElementById('submitCommentBtn');
+
+    document.getElementById('commentForm').querySelectorAll('textarea').forEach(input => {
+        input.addEventListener('input', () => {
+            if (!input.value) {
+                submitCommentBtn.classList.add("disabled-link");
+                submitCommentBtn.classList.remove("btn-primary");
+                return;
+            }
+            submitCommentBtn.classList.add("btn-primary");
+            submitCommentBtn.classList.remove("disabled-link");
+        });
+    });
+
+    //Submit Comment form
+    $(document).ready(function () {
+        $("#submitCommentBtn").click(function (event) {
+            event.preventDefault(); // Prevent default form submission
+
+            const form = $("#commentForm");
+            const url = form.attr('action');
+
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: form.serialize(), // Serialize form data
+                success: function (data) {
+                    $('#comments-section').html(data);
+                    form.find("textarea").val('');
+                    submitCommentBtn.classList.add("disabled-link");
+                    submitCommentBtn.classList.remove("btn-primary");
+                    alert('Wait for you Comment to be Approved!');
+                },
+                error: function (data) {
+                    alert("Error occurred while submitting the form");
+                }
+            });
+        });
+    });
+
+</script>

@@ -1,0 +1,61 @@
+@model IEnumerable<Book>
+
+<h2 class="text-center mt-4">Manage Books</h2>
+<a asp-action="AddBookView" class="btn btn-primary mb-3">Add New Book</a>
+
+<table class="table table-hover table-bordered" id="book-table">
+    <thead class="table-dark">
+    <tr>
+        <th>Title</th>
+        <th>Author</th>
+        <th>Genre</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    <!-- Example Book Row -->
+
+    @foreach (var book in @Model)
+    {
+        <tr>
+            <td>@book.Title</td>
+            <td>@book.Author</td>
+            <td>@book.Genre</td>
+            <td>
+                <a asp-action="EditBookView" asp-route-id="@book.Id" class="btn btn-sm btn-warning">Edit</a>
+                <a onclick="deleteBook(this, @book.Id)" class="btn btn-sm btn-danger">Delete</a>
+            </td>
+        </tr>
+    }
+
+    @if (!Model.Any())
+    {
+        <tr>
+            <td colspan="4">
+                <h4 class="text-center text-secondary">No books available</h4>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<script>
+    //Deletes book from DB and removes it from table.
+    function deleteBook(button, bookId) {
+        $.ajax({
+            url: '/ManageBooks/DeleteBook', // Ensure this URL matches the controller route
+            type: 'GET',
+            data: {id: bookId}, // Send the book ID as a query parameter
+            success: function () {
+                console.log('Book deleted successfully');
+                const row = button.closest('tr'); // Get the closest <tr> ancestor of the button
+                row.remove(); // Remove the row directly
+            },
+            error: function (xhr, status, error) {
+                const errorDetails = JSON.parse(xhr.responseText);
+                alert('Error deleting book:' + errorDetails.error);
+                // Optionally, you can restore the row or show a message here
+            }
+        });
+    }
+</script>

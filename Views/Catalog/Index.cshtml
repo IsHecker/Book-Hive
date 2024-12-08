@@ -1,0 +1,42 @@
+@model IEnumerable<Book>
+
+<h2 class="mb-4">Book Catalog</h2>
+
+<div class="mb-3 d-flex align-items-center">
+    <input type="text" class="form-control me-2" id="search" placeholder="Search for books...">
+    <button type="button" id="searchBtn" class="btn btn-primary">Search</button>
+</div>
+
+<div class="row" id="book-list">
+    @await Html.PartialAsync("BookList", Model)
+    <!-- Repeat the above structure for other books -->
+</div>
+
+
+<script>
+    const searchBtn = $('#searchBtn');
+    let oldSearchValue = '';
+    searchBtn.click(function (event) {
+        event.preventDefault(); // Prevent default link behavior
+        const searchValue = $('#search').val();
+        
+        // allow one time empty search just to retrieve all books.
+        if (oldSearchValue === searchValue)
+            return;
+        
+        $.ajax({
+            url: '/Catalog/Search/',
+            type: 'GET',
+            data: {searchValue},
+            success: function (response) {
+                $('#book-list').html(response);
+                oldSearchValue = searchValue;
+                $('#search').val('');
+            },
+            error: function (error) {
+                console.error(error);
+            }
+        });
+    });
+
+</script>

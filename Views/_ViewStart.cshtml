@@ -1,0 +1,4 @@
+﻿@using BookHive.Services
+@{
+    Layout = Context.Session.IsAdmin() ? "_AdminLayout" : "_Layout";
+}

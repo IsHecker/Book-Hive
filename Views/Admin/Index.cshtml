@@ -1,0 +1,82 @@
+@{
+    Layout = "_AdminLayout";
+}
+
+<div class="container my-5">
+    <h1 class="text-center">Admin Panel</h1>
+    <p class="text-muted text-center">Manage books, users, and reviews from here.</p>
+
+    <div class="row g-4">
+        <!-- Manage Books -->
+        <div class="col-md-4">
+            <div class="card border-primary">
+                <div class="card-header bg-primary text-white">
+                    Manage Books
+                </div>
+                <div class="card-body">
+                    <p>View, add, update, or delete books in the catalog.</p>
+                    <a asp-controller="ManageBooks" asp-action="Index" class="btn btn-primary w-100">Manage Books</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Manage Users -->
+        <div class="col-md-4">
+            <div class="card border-success">
+                <div class="card-header bg-success text-white">
+                    Manage Users
+                </div>
+                <div class="card-body">
+                    <p>View, suspend, or delete user accounts.</p>
+                    <a asp-controller="ManageUsers" asp-action="Index" class="btn btn-success w-100">Manage Users</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Moderate Reviews -->
+        <div class="col-md-4">
+            <div class="card border-warning">
+                <div class="card-header bg-warning text-dark">
+                    Moderate Reviews
+                </div>
+                <div class="card-body">
+                    <p>Approve or reject book reviews.</p>
+                    <a asp-controller="ManageReviews" asp-action="Index" class="btn btn-warning w-100">Moderate Reviews</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- System Stats -->
+    <div class="mt-5">
+        <h2>System Statistics</h2>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card text-center border-info">
+                    <div class="card-body">
+                        <h3 class="card-title">Books</h3>
+                        <p class="card-text display-6">@Model.BooksCount</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-center border-info">
+                    <div class="card-body">
+                        <h3 class="card-title">Users</h3>
+                        <p class="card-text display-6">@Model.UsersCount</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-center border-info">
+                    <div class="card-body">
+                        <h3 class="card-title">Reviews</h3>
+                        <p class="card-text display-6">@Model.ReviewsCount</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>

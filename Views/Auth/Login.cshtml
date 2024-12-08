@@ -1,0 +1,30 @@
+@model string?
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <h2 class="text-center mb-4">Login to BookHive</h2>
+        @if (Model != null)
+        {
+            <h6 class="text-center mt-2 mb-2 pb-2 pt-2 alert-danger">@Model</h6>
+        }
+
+        <form asp-action="LoginProcess" method="post">
+            <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" class="form-control" id="username" name="username"
+                       placeholder="Enter your username" value="Alice Johnson" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" class="form-control" id="password" name="password"
+                       placeholder="Enter your password" value="p" required>
+            </div>
+
+            <div class="d-flex justify-content-between">
+                <a asp-action="Register" class="text-muted">Don't have an account? Register here</a>
+                <button type="submit" class="btn btn-primary">Login</button>
+            </div>
+        </form>
+    </div>
+</div>

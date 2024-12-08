@@ -1,0 +1,139 @@
+@{
+    User user = Model.User;
+    IEnumerable<Book> bookCollection = Model.BookCollection;
+    IEnumerable<ActivityLog> activityLogs = Model.ActivityLogs;
+}
+
+<h2 class="mb-4">Welcome, @user.Name!</h2>
+
+<div class="row">
+
+    <div id="book-collection" class="col-md-6">
+        @await Html.PartialAsync("BookCollection", bookCollection)
+    </div>
+
+    <!-- User Profile Information -->
+    <div class="col-md-6">
+        <h4>Your Profile</h4>
+
+        <h6 id="errorMessage" class="text-center mt-2 mb-2 pt-2 pb-2 alert-danger" style="display: none;"></h6>
+        <h6 id="successMessage" class="text-center mt-2 mb-2 pt-2 pb-2 alert-success" style="display: none;"></h6>
+
+        <form method="post" id="profileForm">
+            <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" class="form-control" id="username" name="username" value="@user.Name" readonly>
+            </div>
+            <div class="mb-3">
+                <label for="email" class="form-label">Email Address</label>
+                <input type="email" class="form-control" id="email" name="email" value="@user.Email" readonly>
+            </div>
+            <button type="button" class="btn btn-secondary" id="editButton">Edit Profile</button>
+        </form>
+    </div>
+</div>
+
+<!-- Activity Section -->
+<div id="activity-logs" class="mt-5">
+    @await Html.PartialAsync("Activity", activityLogs)
+</div>
+
+
+<script>
+
+    const usernameInput = document.getElementById('username');
+    const emailInput = document.getElementById('email');
+    const editButton = document.getElementById('editButton');
+
+    // Clear error message when typing in any input within the form
+    document.getElementById('profileForm').querySelectorAll('input').forEach(input => {
+        input.addEventListener('input', () => {
+            setMessage('errorMessage', '');
+        });
+    });
+
+
+    $("#removeBtn").click(function (event) {
+        event.preventDefault(); // Prevent default link behavior
+
+        const removeUrl = $(this).attr("formaction");
+        console.log(removeUrl);
+        $.ajax({
+            url: removeUrl,
+            method: 'GET',
+            success: function (data) {
+                // Update both partial views
+                $('#book-collection').html(data);
+
+                $.ajax({
+                    url: "/Member/UpdateActivityLog",
+                    method: 'GET',
+                    success: function (data) {
+                        $('#activity-logs').html(data);
+                    },
+                    error: function () {
+                        alert("Error updating partial views.");
+                    }
+                });
+
+            },
+            error: function () {
+                alert("Error updating partial views.");
+            }
+        });
+    });
+
+
+    // Sending profile form data to editprofile action method
+    editButton.addEventListener('click', function () {
+
+        // Toggle readonly attribute
+        if (this.textContent === 'Edit Profile') {
+            setButtonState('Save Profile', false);
+            return;
+        }
+
+        // Send an AJAX request to the MVC action
+        $.ajax({
+            url: '/Member/EditProfile/', // Replace with your actual action URL
+            method: 'GET',
+            data: {
+                username: usernameInput.value,
+                email: emailInput.value
+            },
+            success: function (response) {
+                console.log('Profile saved successfully.');
+                setMessage('successMessage', 'Profile Updated Successfully');
+                setMessage('errorMessage', '');
+                setButtonState('Edit Profile', true);
+            },
+            error: function (xhr) {
+                const errorDetails = JSON.parse(xhr.responseText);
+                setMessage('successMessage', '');
+                setMessage('errorMessage', errorDetails.error + ': ' + errorDetails.details);
+            }
+        });
+    });
+
+    function setButtonState(state, isReadOnly) {
+        if (isReadOnly) {
+            usernameInput.setAttribute('readonly', true);
+            emailInput.setAttribute('readonly', true);
+        } else {
+            usernameInput.removeAttribute('readonly');
+            emailInput.removeAttribute('readonly');
+        }
+        editButton.textContent = state; // Change button text back
+    }
+
+    function setMessage(type, message) {
+        const messageBar = document.getElementById(type);
+        if (message) {
+            messageBar.textContent = message;
+            messageBar.style.display = 'block';
+        } else {
+            messageBar.textContent = '';
+            messageBar.style.display = 'none';
+        }
+    }
+</script>

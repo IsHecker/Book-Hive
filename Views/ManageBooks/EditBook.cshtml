@@ -1,0 +1,54 @@
+@model Book
+
+<h2 class="text-center mt-4">Edit Book</h2>
+<div class="d-flex justify-content-between">
+    <!-- Form -->
+    <form asp-action="EditBook" method="post" class="p-4 border rounded bg-light flex-grow-1 me-3" enctype="multipart/form-data">
+
+        <input type="hidden" name="id" value="@Model.Id">
+        <div class="mb-3">
+            <label for="title" class="form-label fw-bold">Title</label>
+            <input type="text" id="title" name="title" class="form-control" value="@Model.Title" required>
+        </div>
+        <div class="mb-3">
+            <label for="author" class="form-label fw-bold">Author</label>
+            <input type="text" id="author" name="author" class="form-control" value="@Model.Author" required>
+        </div>
+        <div class="mb-3">
+            <label for="genre" class="form-label fw-bold">Genre</label>
+            <input type="text" id="genre" name="genre" class="form-control" value="@Model.Genre" required>
+        </div>
+        <div class="mb-3">
+            <label for="description" class="form-label fw-bold">Description</label>
+            <textarea id="description" name="description" class="form-control" rows="4"
+                      required>@Model.Description</textarea>
+        </div>
+        <div class="mb-3">
+            <label for="poster" class="form-label fw-bold">Book Poster</label>
+            <input type="file" id="poster" name="poster" class="form-control" accept="image/*" onchange="previewImage(event)" required>
+        </div>
+        <button type="submit" class="btn btn-primary w-100">Save Changes</button>
+    </form>
+
+    <!-- Image Preview -->
+    <div class="border rounded bg-light p-3 text-center" style="width: 300px; display: flex; justify-content: center; align-items: center;">
+        <img id="imagePreview" src="@Model.PosterUrl" alt="" class="img-fluid mt-3" style=" min-height: 300px; max-height: 300px; object-fit: contain; ">
+    </div>
+
+</div>
+
+<script>
+    function previewImage(event) {
+        const input = event.target;
+        const preview = document.getElementById('imagePreview');
+
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                preview.src = e.target.result;
+                $('#noImageText').remove();
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+</script>

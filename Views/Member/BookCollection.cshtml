@@ -1,0 +1,12 @@
+@model IEnumerable<Book>
+
+<h4>Your Book Collection</h4>
+<ul class="list-group mb-4">
+    @foreach (var book in @Model)
+    {
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <span>@book.Title</span>
+            <button type="button" id="removeBtn" asp-action="RemoveBookFromCollection" asp-route-bookId="@book.Id" class="btn btn-sm btn-danger">Remove</button>
+        </li>
+    }
+</ul>

@@ -1,0 +1,79 @@
+@model IEnumerable<Comment>
+
+<h2 class="text-center mt-4">Manage Reviews</h2>
+
+<table class="table table-hover table-bordered">
+    <thead class="table-dark">
+    <tr>
+        <th>Book Title</th>
+        <th>User</th>
+        <th>Rating</th>
+        <th>Comment</th>
+        <th>Posted on</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    <!-- Example Review Row -->
+    @foreach (var comment in Model)
+    {
+        <tr>
+            <td>@comment.Book.Title</td>
+            <td>@comment.User!.Name</td>
+            <td>4.5</td>
+            <td>@comment.GetShortComment()</td>
+            <td>@comment.DatePosted</td>
+            <td>
+                <button type="button" onclick="approveReview(this, @comment.Id)" class="btn btn-sm btn-success">Approve</button>
+                <button type="button" onclick="rejectReview(this, @comment.Id)" class="btn btn-sm btn-danger">Reject</button>
+            </td>
+        </tr>
+    }
+    @if (!Model.Any())
+    {
+        <tr>
+            <td colspan="6">
+                <h4 class="text-center text-secondary">No Reviews yet</h4>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+
+<script>
+    //Approve a review and removes review's row.
+    function approveReview(button, id) {
+        $.ajax({
+            url: '/ManageReviews/ApproveReview',
+            data: {id},
+            success: function () {
+                removeRow(button);
+                console.log('successfully');
+            },
+            error: function (xhr) {
+                alert('Error');
+            }
+        });
+    }
+
+    //Deletes review and removes review's row.
+    function rejectReview(button, id) {
+        $.ajax({
+            url: '/ManageReviews/RejectReview',
+            data: {id},
+            success: function () {
+                removeRow(button);
+                console.log('successfully');
+            },
+            error: function (xhr) {
+                alert('Error');
+            }
+        });
+    }
+    
+    function removeRow(button){
+        const row = button.closest('tr'); // Get the closest <tr> ancestor of the button
+        row.remove(); // Remove the row directly
+    }
+</script>
